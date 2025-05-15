@@ -2,7 +2,9 @@
 print("Invoking model...")
 from langchain import hub
 from langgraph.graph import START, StateGraph
+from typing import Optional
 
+from src.interfaces import LLMInterface, VectorStoreInterface, RetrievalStrategy
 from src.modelState import State
 from src.modelLoader import llm, vector_store
 from src.configLoader import prompt_source, context_scope
@@ -10,11 +12,16 @@ from src.similaritySearchRetrieval import SimilaritySearchRetrieval
 
 
 class QAModel:
-    def __init__(self, llm=llm, vector_store=vector_store, retrieval_strategy=SimilaritySearchRetrieval()):
+    def __init__(self, 
+                 llm: LLMInterface, 
+                 vector_store: VectorStoreInterface, 
+                 prompt_source: str,
+                 context_scope: int,
+                 retrieval_strategy: RetrievalStrategy = SimilaritySearchRetrieval()):
         self.prompt = hub.pull(prompt_source)
+        self.context_scope = context_scope
         self.llm = llm
         self.vector_store = vector_store
-        self.retrieved_docs = []
         self.retrieval_strategy = retrieval_strategy
 
         # Compile application and test
@@ -33,7 +40,7 @@ class QAModel:
 
 
     def generate(self, state: State):
-        max_chars = context_scope
+        max_chars = self.context_scope
         docs = state["context"]
         docs_content = ""
 

@@ -1,4 +1,4 @@
-from src.retrievalStrategy import RetrievalStrategy
+from src.interfaces import RetrievalStrategy
 
 class SimilaritySearchRetrieval(RetrievalStrategy):
     """Retrieval strategy using vector similarity search."""
