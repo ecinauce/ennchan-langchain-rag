@@ -4,13 +4,13 @@ from pathlib import Path
 from langchain_community.document_loaders import WebBaseLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from src.configLoader import docs_source
+from src.config import config  # Import the config object directly
 from src.docsChecker import is_url, is_local_path
 from src.webLoaderAdapter import WebLoaderAdapter
 from src.textLoaderAdapter import TextLoaderAdapter
 
 
-def load_documents(vector_store, source=docs_source):
+def load_documents(vector_store, source=config.docs_source):  # Use config.docs_source
     if is_url(source):
         loader = WebLoaderAdapter(source)
 

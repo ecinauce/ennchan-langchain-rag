@@ -8,6 +8,7 @@ from src.interfaces import LLMInterface, VectorStoreInterface, RetrievalStrategy
 from src.modelState import State
 from src.modelLoader import llm, vector_store
 from src.configLoader import prompt_source, context_scope
+from src.config import config  # Import the config object directly
 from src.similaritySearchRetrieval import SimilaritySearchRetrieval
 
 
