@@ -1,0 +1,12 @@
+{
+    "USER_AGENT": "EnnchanLangChainRAG/1.0",
+    "LANGSMITH_TRACING": "true",
+    "LANGSMITH_API_KEY": "please get your own key",
+    "HUGGINGFACEHUB_API_TOKEN": "please get your own token",
+    "quantization": 1,
+    "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+    "embeddings_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "docs_source": "https://en.wikipedia.org/wiki/World_War_II",
+    "prompt_source": "rlm/rag-prompt",
+    "context_scope": 3000
+}

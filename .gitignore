@@ -175,3 +175,6 @@ cython_debug/
 
 # configs
 config.json
+
+# misc
+*-IBM-7QBDQN3*
