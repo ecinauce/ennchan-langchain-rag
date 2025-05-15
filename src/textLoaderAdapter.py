@@ -16,6 +16,8 @@ class TextLoaderAdapter(DocLoader):
 
     def load(self):
         """Load documents from a text file."""
-        return TextLoader(self.path, 
+        loader = TextLoader(self.path, 
                           encoding=self.encoding, 
                           autodetect_encoding=self.autodetect_encoding)
+
+        return loader.load()

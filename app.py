@@ -19,6 +19,6 @@ model = QAModel(
     context_scope=context_scope
     )
 
-question = "Who was Jesus Christ?"
+question = "What was Stalin's relationship with Hitler?"
 answer = inquire(question, model)
 print(answer)

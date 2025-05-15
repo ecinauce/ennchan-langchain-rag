@@ -22,7 +22,9 @@ llm = HuggingFacePipeline.from_model_id(
     task="text-generation",
     pipeline_kwargs=dict(
         max_new_tokens=512,
-        do_sample=False,
+        do_sample=True,
+        temperature=0.7,
+        top_p=0.9,
         repetition_penalty=1.03,
         return_full_text=False,
     ),

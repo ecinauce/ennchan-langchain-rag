@@ -9,7 +9,7 @@ class WebLoaderAdapter(DocLoader):
 
 
     def load(self):
-        return WebBaseLoader(
+        loader = WebBaseLoader(
             web_paths=(self.url,),
             bs_kwargs=dict(
             parse_only=bs4.SoupStrainer(
@@ -17,3 +17,5 @@ class WebLoaderAdapter(DocLoader):
                 )
             ),
         )
+
+        return loader.load()

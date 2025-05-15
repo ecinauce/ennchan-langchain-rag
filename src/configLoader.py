@@ -12,6 +12,7 @@ except FileNotFoundError:
     print(f"Configuration file not found at {config_path}.")
     exit(1)
 
+os.environ["BRAVE_API_KEY"] = config["BRAVE_API_KEY"]
 os.environ["USER_AGENT"] = config["USER_AGENT"]
 os.environ["LANGSMITH_TRACING"] = config["LANGSMITH_TRACING"]
 os.environ["LANGSMITH_API_KEY"] = config["LANGSMITH_API_KEY"]
