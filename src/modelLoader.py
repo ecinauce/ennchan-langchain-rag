@@ -1,21 +1,11 @@
 print("Loading model...")
-from langchain_core.vectorstores import InMemoryVectorStore
-from langchain_huggingface import HuggingFacePipeline, HuggingFaceEmbeddings
-from src.config import config  # Import the config object directly
-
+from langchain_huggingface import HuggingFacePipeline
 import torch
-from src.quantizationLoader import quantization_config
 
-p_quantization = {}
-if config.quantization and torch.cuda.is_available():
-    print("Loading quantized model...")
-    from src.quantizationLoader import quantization_config
-    p_quantization = {"quantization_config": quantization_config}
-else:
-    if config.quantization:
-        print("Quantization requested but CUDA not available. My guy, either CUDA isn't installed or you're honestly too poor to run this thing. Here's the backup implementation. Good luck!")
-    else:
-        print("Loading full model...")
+from src.config import config  # Import the config object directly
+from src.quantizationHandler import load_quantization
+
+p_quantization = load_quantization()
 
 llm = HuggingFacePipeline.from_model_id(
     model_id=config.model_name,  # Use config.model_name
@@ -30,6 +20,3 @@ llm = HuggingFacePipeline.from_model_id(
     ),
     model_kwargs=p_quantization,
 )
-
-embeddings = HuggingFaceEmbeddings(model_name=config.embeddings_model)  # Use config.embeddings_model
-vector_store = InMemoryVectorStore(embeddings)

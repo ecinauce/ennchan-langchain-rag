@@ -1,4 +1,5 @@
-from src.modelLoader import vector_store, llm
+from src.modelLoader import llm
+from src.memoryHandler import vector_store
 from src.docsLoader import load_documents
 from src.QAModel import QAModel
 from src.config import config  # Import the config object directly
