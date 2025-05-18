@@ -3,7 +3,13 @@ from src.memoryHandler import vector_store
 from src.docsLoader import load_documents
 from src.QAModel import QAModel
 from src.config import config  # Import the config object directly
+# from pprint import pprint as pr
 
+# from ennchan_search import search, load_config
+
+
+# load_config("config.json")
+# pr(search("World War II"))
 
 def inquire(question):
     load_documents(vector_store)
@@ -15,11 +21,11 @@ def inquire(question):
     )
 
     # Execute chat
-    answer = model.graph.invoke({"question": question})
-    return answer["answer"]
+    output = model.graph.invoke({"question": question})
+    return output["answer"]
 
 
 # Load docs
-question = "Did Jesus write the 10 commandments?"
-answer = inquire(question)
+inquiry = "Did Jesus write the 10 commandments?"
+answer = inquire(inquiry)
 print(answer)

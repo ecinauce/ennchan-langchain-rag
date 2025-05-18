@@ -42,20 +42,23 @@ class Config:
         os.environ["HUGGINGFACEHUB_API_TOKEN"] = self.HUGGINGFACEHUB_API_TOKEN
 
 # Load configuration
-script_dir = os.path.dirname(os.path.abspath(__file__))
-config_path = os.path.join(os.path.dirname(script_dir), "config.json")
 
-try:
-    with open(config_path, "r", encoding="utf-8") as f:
-        config_data = json.load(f)
-    
-    # Apply defaults for missing values
-    for key, default in Config.DEFAULTS.items():
-        if key not in config_data:
-            config_data[key] = default
-    
-    config = Config(**config_data)
-    print("Configuration loaded successfully")
-except FileNotFoundError:
-    print(f"Configuration file not found at {config_path}.")
-    exit(1)
+def load_config(config_path: str = None) -> None:
+    if not config_path:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        config_path = os.path.join(os.path.dirname(script_dir), "config.json")
+
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            config_data = json.load(f)
+        
+        # Apply defaults for missing values
+        for key, default in Config.DEFAULTS.items():
+            if key not in config_data:
+                config_data[key] = default
+        
+        Config(**config_data)
+        print("Configuration loaded successfully")
+    except FileNotFoundError:
+        print(f"Configuration file not found at {config_path}.")
+        exit(1)

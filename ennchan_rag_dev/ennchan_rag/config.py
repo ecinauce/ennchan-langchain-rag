@@ -1,6 +1,8 @@
-from typing import Dict, Any, ClassVar
+# src/config.py
+import os
+import json
 from dataclasses import dataclass
-import os, json
+from typing import Dict, Any, ClassVar
 
 @dataclass
 class Config:
