@@ -22,6 +22,9 @@ class Config:
     docs_source: str
     prompt_source: str
     context_scope: int
+
+    # Quantization settings
+    quantization_config: Dict[str, Any]
     
     # Default values as class variables
     DEFAULTS: ClassVar[Dict[str, Any]] = {
@@ -30,7 +33,13 @@ class Config:
         "quantization": False,
         "docs_source": "https://en.wikipedia.org/wiki/World_War_II",
         "prompt_source": "rlm/rag-prompt",
-        "context_scope": 1000
+        "context_scope": 1000,
+        "quantization_config": {
+            "load_in_4bit": True,
+            "bnb_4bit_quant_type": "nf4",
+            "bnb_4bit_compute_dtype": "float16",
+            "bnb_4bit_use_double_quant": True,
+        },
     }
     
     def __post_init__(self):
@@ -41,21 +50,25 @@ class Config:
         os.environ["LANGSMITH_API_KEY"] = self.LANGSMITH_API_KEY
         os.environ["HUGGINGFACEHUB_API_TOKEN"] = self.HUGGINGFACEHUB_API_TOKEN
 
-# Load configuration
-script_dir = os.path.dirname(os.path.abspath(__file__))
-config_path = os.path.join(os.path.dirname(script_dir), "config.json")
 
-try:
-    with open(config_path, "r", encoding="utf-8") as f:
-        config_data = json.load(f)
+def load_config(config_path: str = None) -> Config:
+    if not config_path:
+        # Load configuration
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        config_path = os.path.join(os.path.dirname(script_dir), "config.json")
+
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            config_data = json.load(f)
+        
+        # Apply defaults for missing values
+        for key, default in Config.DEFAULTS.items():
+            if key not in config_data:
+                config_data[key] = default
+        
+        print("Configuration loaded successfully")
+        return Config(**config_data)
     
-    # Apply defaults for missing values
-    for key, default in Config.DEFAULTS.items():
-        if key not in config_data:
-            config_data[key] = default
-    
-    config = Config(**config_data)
-    print("Configuration loaded successfully")
-except FileNotFoundError:
-    print(f"Configuration file not found at {config_path}.")
-    exit(1)
+    except FileNotFoundError:
+        print(f"Configuration file not found at {config_path}.")
+        exit(1)

@@ -1,4 +1,4 @@
-from src.modelState import State
+from ennchan_rag.core.state import State
 
 class ContextProcessor:
     def process(self, state: State, max_chars: int):

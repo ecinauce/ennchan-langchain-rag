@@ -9,5 +9,11 @@
     "embeddings_model": "sentence-transformers/all-MiniLM-L6-v2",
     "docs_source": "https://en.wikipedia.org/wiki/World_War_II",
     "prompt_source": "rlm/rag-prompt",
-    "context_scope": 3000
+    "context_scope": 3000,
+    "quantization_config": {
+        "load_in_4bit": 1,
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_use_double_quant": 1
+    }
 }
