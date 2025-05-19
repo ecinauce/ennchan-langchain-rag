@@ -41,11 +41,6 @@ def ask(question: str, p_config: str = None) -> str:
         context_scope=config.context_scope,
     )
 
-    # Load documents
-    loader = WebLoaderAdapter("https://en.wikipedia.org/wiki/Artificial_intelligence")
-    docs = loader.load()
-    vector_store.add_documents(docs)
-
     # Ask a question
     answer = model.graph.invoke({"question": question})
     return answer["answer"]

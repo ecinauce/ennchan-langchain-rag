@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ennchan-search"
-version = "0.1.0.dev2"
+version = "0.0.1"
 description = "Search module for the RAG using LangChain"
 readme = "README.md"
 authors = [
@@ -33,5 +33,5 @@ dev = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/yourusername/ennchan-langchain-rag"
-"Bug Tracker" = "https://github.com/yourusername/ennchan-langchain-rag/issues"
+"Homepage" = "https://github.com/ecinauce/ennchan-search01"
+"Bug Tracker" = "https://github.com/ecinauce/ennchan-search01/issues"

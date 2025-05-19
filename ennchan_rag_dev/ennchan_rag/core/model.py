@@ -91,7 +91,6 @@ class SearchAugmentedQAModel(QAModel):
         search_query = state.get("search_query", state["question"])
         
         # Use your search module to get results
-        print(search_query)
         search_results = web_search(search_query, self.search_config)
         
         # Convert search results to documents

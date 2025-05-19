@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ennchan-rag"
-version = "0.1.0"
+version = "0.0.1.dev1"
 description = "RAG implementation using LangChain"
 readme = "README.md"
 authors = [
@@ -25,6 +25,8 @@ dependencies = [
     "langgraph>=0.0.10",
     "pydantic>=2.0.0",
     "beautifulsoup4>=4.12.0",
+    "validators",
+    "ennchan_search>=0.0.1",
 ]
 
 [project.optional-dependencies]
@@ -35,5 +37,5 @@ dev = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/yourusername/ennchan-langchain-rag"
-"Bug Tracker" = "https://github.com/yourusername/ennchan-langchain-rag/issues"
+"Homepage" = "https://github.com/ecinauce/ennchan-rag01"
+"Bug Tracker" = "https://github.com/ecinauce/ennchan-rag01/issues"
