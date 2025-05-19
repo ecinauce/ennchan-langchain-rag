@@ -1,16 +1,41 @@
 from brave import Brave
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Union
 
 from ennchan_search.core.interfaces import SearchEngine
 from ennchan_search.extractor.extractorModel import WebResultExtractor
 
+import json
+import os
+from ennchan_search.config import Config, load_config
+
 class BraveSearchEngine(SearchEngine):
-    def __init__(self, config: Optional[Dict[str, Any]]):
-        self.config = config
-        if not self.config:
-            self.brave = Brave()
+    def __init__(self, config: Optional[Union[str, Dict, Config]] = None):
+        # Handle different config types
+        if isinstance(config, str):
+            # If config is a string path, load it
+            try:
+                with open(config, 'r') as f:
+                    config_data = json.load(f)
+                self.api_key = config_data.get("BRAVE_API_KEY")
+            except Exception as e:
+                print(f"Error loading config file: {e}")
+                self.api_key = None
+        elif isinstance(config, dict):
+            # If config is a dictionary
+            self.api_key = config.get("BRAVE_API_KEY")
+        elif hasattr(config, 'BRAVE_API_KEY'):
+            # If config is a Config object
+            self.api_key = config.BRAVE_API_KEY
         else:
-            self.brave = Brave(api_key=self.config["BRAVE_API_KEY"])
+            # Default case
+            self.api_key = os.environ.get("BRAVE_API_KEY")
+        
+        # Initialize Brave API
+        if self.api_key:
+            self.brave = Brave(api_key=self.api_key)
+        else:
+            self.brave = Brave()
+
 
 
     def extract_content(self, url: str) -> Optional[str]:    
@@ -50,7 +75,16 @@ class BraveSearchEngine(SearchEngine):
 
 
     def search(self, query: str) -> List[Dict[str, Any]]:
-        search_results = self.brave.search(q=query, raw=True)
+        retry = 5
+        while retry > 0:
+            try:
+                search_results = self.brave.search(q=query, raw=True)
+                break
+            except Exception as e:
+                print(f"Error: {e}")
+                retry -= 1
+                if retry == 0:
+                    raise e
 
         output = self.process_results(search_results)
         return output

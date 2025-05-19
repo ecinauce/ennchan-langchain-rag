@@ -1,4 +1,4 @@
-from ennchan_rag import QAModel
+from ennchan_rag import QAModel, SearchAugmentedQAModel
 from ennchan_rag.config import load_config
 from ennchan_rag.loaders import WebLoaderAdapter
 from ennchan_rag.utils.quantization import load_quantization
@@ -7,7 +7,7 @@ from langchain_huggingface import HuggingFacePipeline, HuggingFaceEmbeddings
 from langchain_core.vectorstores import InMemoryVectorStore
 
 
-def ask(question: str, config: str = None) -> str:
+def ask(question: str, p_config: str = None) -> str:
     """
     Inquire about a question using the QAModel.
 
@@ -18,7 +18,7 @@ def ask(question: str, config: str = None) -> str:
         str: The answer to the question.
     """
     # Initialize components
-    config = load_config(config)
+    config = load_config(p_config)
     embeddings = HuggingFaceEmbeddings(model_name=config.embeddings_model)
     vector_store = InMemoryVectorStore(embeddings)
     llm = HuggingFacePipeline.from_model_id(
@@ -34,7 +34,7 @@ def ask(question: str, config: str = None) -> str:
     )
 
     # Create and use the model
-    model = QAModel(
+    model = SearchAugmentedQAModel(
         llm=llm,
         vector_store=vector_store,
         prompt_source=config.prompt_source,
