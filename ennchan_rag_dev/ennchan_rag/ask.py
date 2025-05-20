@@ -1,8 +1,7 @@
-from ennchan_rag import QAModel, SearchAugmentedQAModel
+from ennchan_rag.core.model import SearchAugmentedQAModel
 from ennchan_rag.config import load_config
 from ennchan_rag.loaders import WebLoaderAdapter
 from ennchan_rag.utils.quantization import load_quantization
-# from ennchan_rag.retrievers import SimilaritySearchRetrieval
 from langchain_huggingface import HuggingFacePipeline, HuggingFaceEmbeddings
 from langchain_core.vectorstores import InMemoryVectorStore
 

@@ -1,4 +1,4 @@
-from ennchan_rag.ask import ask
+from ennchan_rag import ask
 
 
 # Load docs
