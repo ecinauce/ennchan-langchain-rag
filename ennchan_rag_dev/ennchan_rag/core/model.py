@@ -12,6 +12,7 @@ from ennchan_rag.retrievers.mmr import MMRRetrieval
 from ennchan_rag.retrievers.hybrid import HybridRetrieval
 from ennchan_rag.retrievers.keyword import KeywordRetrieval
 from ennchan_search import search as web_search
+import concurrent.futures
 print("Invoking model...")
 
 
@@ -168,37 +169,56 @@ class SearchAugmentedQAModel(QAModel):
         raw_results = state.get("raw_search_results", [])
         processed_results = []
         
-        for result in raw_results:
-            # Skip results without content
-            if not result.get("content"):
-                continue
-                
-            # Create a summary prompt for this specific result
-            summary_prompt = f"""
-            Summarize the following content in relation to this question: "{state['question']}"
-            
-            Content from {result.get('title', 'Unknown Source')} ({result.get('url', 'No URL')}):
-            {result.get('content')[:2000]}...
-            
-            Provide a concise summary that captures the key information relevant to the question.
-            Include specific facts, figures, and quotes if relevant.
-            """
-            
-            try:
-                # Generate summary using LLM
-                summary = self.llm.invoke(summary_prompt)
-                
-                # Store processed result
-                processed_results.append({
-                    "title": result.get("title", "Unknown Source"),
-                    "url": result.get("url", ""),
-                    "summary": summary,
-                    "original_content": result.get("content", "")
-                })
-            except Exception as e:
-                print(f"Error processing result: {e}")
-        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            result_threads = {
+                executor.submit(
+                    self._process_single_result, 
+                    result, 
+                    state["question"]
+                ): result for result in raw_results if result.get("content")
+            }
+
+            for future in concurrent.futures.as_completed(result_threads):
+                try:
+                    processed_result = future.result()
+                    if processed_result:
+                        processed_results.append(processed_result)
+                except Exception as e:
+                    print(f"Error processing result: {e}")
+
         return {**state, "processed_results": processed_results}
+        
+    def _process_single_result(self, result: Dict, question: str) -> Optional[Dict]:
+        """Process a single search result into a summarized version."""
+        # Skip results without content
+        if not result.get("content"):
+            return None
+            
+        # Create a summary prompt for this specific result
+        summary_prompt = f"""
+        Summarize the following content in relation to this question: "{question}"
+        
+        Content from {result.get('title', 'Unknown Source')} ({result.get('url', 'No URL')}):
+        {result.get('content')[:2000]}...
+        
+        Provide a concise summary that captures the key information relevant to the question.
+        Include specific facts, figures, and quotes if relevant.
+        """
+        
+        try:
+            # Generate summary using LLM
+            summary = self.llm.invoke(summary_prompt)
+            
+            # Return processed result
+            return {
+                "title": result.get("title", "Unknown Source"),
+                "url": result.get("url", ""),
+                "summary": summary,
+                "original_content": result.get("content", "")
+            }
+        except Exception as e:
+            print(f"Error processing result from {result.get('url', 'unknown URL')}: {e}")
+            return None
 
     def search_web(self, state: State) -> Dict:
         """Search the web for relevant information using multiple queries"""

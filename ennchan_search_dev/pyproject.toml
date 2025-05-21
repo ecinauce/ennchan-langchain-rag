@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ennchan-search"
-version = "0.0.1"
+version = "0.0.2"
 description = "Search module for the RAG using LangChain"
 readme = "README.md"
 authors = [
