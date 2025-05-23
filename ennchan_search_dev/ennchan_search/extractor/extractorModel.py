@@ -11,7 +11,20 @@ from ennchan_search.utils.error_handling import retry_with_backoff
 logger = logging.getLogger(__name__)
 
 class WebResultExtractor(ResultExtractor):
+    """
+    Extracts content from web pages.
+    
+    This class handles fetching HTML content from URLs and extracting
+    the main textual content while filtering out non-content elements.
+    """
+    
     def __init__(self, url: str):
+        """
+        Initialize the web content extractor.
+        
+        Args:
+            url: The URL to extract content from
+        """
         self.url = url
         self.result = ""
         self.ignore_tags = ['script', 'style', 'nav', 'header', 'footer']
@@ -33,6 +46,15 @@ class WebResultExtractor(ResultExtractor):
 
     @retry_with_backoff(max_retries=3, exceptions=(requests.RequestException,))
     def request_content(self) -> str:
+        """
+        Request and fetch content from the URL.
+        
+        Returns:
+            Extracted text content from the URL or empty string if failed
+            
+        Raises:
+            RequestException: If there's an issue with the HTTP request
+        """
         try:
             logger.info(f"Requesting content from {self.url}")
             
@@ -54,6 +76,15 @@ class WebResultExtractor(ResultExtractor):
             return ""
 
     def process_result(self) -> str:
+        """
+        Process the HTML content to extract meaningful text.
+        
+        This method removes non-content elements like scripts, styles,
+        headers, and footers, then extracts text from paragraphs.
+        
+        Returns:
+            Extracted text content or empty string if processing fails
+        """
         try:
             # Parse HTML
             soup = BeautifulSoup(self.result, "html.parser")

@@ -1,12 +1,85 @@
-# ennchan_interface_cmd/app.py
+"""
+Command-line interface for the EnnchanRAG system.
+
+This module provides a user-friendly command-line interface for interacting with
+the EnnchanRAG system. It handles user input, displays responses, and provides
+options for verbose output and error handling.
+
+Features:
+- Interactive command-line interface with colored output
+- Verbose mode for debugging and development
+- Output suppression for cleaner user experience
+- Runtime measurement for performance monitoring
+- Error handling with optional stack traces
+"""
+
 import time
 import os
 import sys
+import logging
+import argparse
+import io
+import contextlib
 from ennchan_rag.ask import ask
+
+class QuietFilter(logging.Filter):
+    """Filter that blocks all log records regardless of level."""
+    def filter(self, record):
+        return False
+
+@contextlib.contextmanager
+def suppress_output(verbose=False):
+    """Context manager to suppress both stdout and stderr output."""
+    if verbose:
+        yield  # Don't suppress anything in verbose mode
+        return
+        
+    # Save original stdout/stderr and logging configuration
+    save_stdout = sys.stdout
+    save_stderr = sys.stderr
+    root_logger = logging.getLogger()
+    original_level = root_logger.level
+    original_filters = root_logger.filters.copy()
+    original_handlers = root_logger.handlers.copy()
+    
+    try:
+        # Redirect stdout/stderr
+        sys.stdout = io.StringIO()
+        sys.stderr = io.StringIO()
+        
+        # Silence root logger
+        root_logger.setLevel(logging.CRITICAL)
+        quiet_filter = QuietFilter()
+        root_logger.addFilter(quiet_filter)
+        
+        # Silence all other loggers
+        for logger_name in logging.root.manager.loggerDict:
+            logging.getLogger(logger_name).setLevel(logging.CRITICAL)
+        
+        yield
+    finally:
+        # Restore stdout/stderr and logging configuration
+        sys.stdout = save_stdout
+        sys.stderr = save_stderr
+        root_logger.setLevel(original_level)
+        root_logger.filters = original_filters
+        root_logger.handlers = original_handlers
 
 def clear_screen():
     """Clear the terminal screen."""
     os.system('cls' if os.name == 'nt' else 'clear')
+
+def clean_output(output):
+    """
+    Clean the output by extracting just the answer portion.
+    
+    Args:
+        output: Raw output from the RAG system
+        
+    Returns:
+        Cleaned output with just the answer text
+    """
+    return output.split("Answer:")[-1].strip()
 
 def print_header():
     """Print the application header."""
@@ -17,6 +90,28 @@ def print_header():
     print()
 
 def main():
+    """
+    Main function that runs the command-line interface.
+    
+    This function handles command-line arguments, sets up logging,
+    and runs the main interaction loop for the RAG system.
+    """
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="EnnchanRAG Command Line Interface")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
+    args = parser.parse_args()
+    
+    if args.verbose:
+        # Configure verbose logging
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        print("Verbose mode enabled. Debug information will be displayed.")
+    else:
+        # Configure minimal logging
+        logging.basicConfig(level=logging.CRITICAL)
+ 
     clear_screen()
     print_header()
     
@@ -33,7 +128,9 @@ def main():
                 start_time = time.time()
                 print("\033[90mThinking...\033[0m")
                 
-                reply = ask(prompt, "..\\config.json")
+                # Suppress all output if not in verbose mode
+                with suppress_output(args.verbose):
+                    reply = ask(prompt, "..\\config.json")
                 
                 end_time = time.time()
                 runtime = end_time - start_time
@@ -41,7 +138,7 @@ def main():
                 # Clear the "Thinking..." line
                 sys.stdout.write("\033[F\033[K")
                 
-                print(f"\033[1;34mAssistant:\033[0m {reply}")
+                print(f"\033[1;34mAssistant:\033[0m {clean_output(reply)}")
                 print(f"\033[90m(Response time: {runtime:.2f} seconds)\033[0m\n")
         
         except KeyboardInterrupt:
@@ -49,6 +146,9 @@ def main():
             run = False
         except Exception as e:
             print(f"\n\033[31mError: {e}\033[0m")
+            if args.verbose:
+                import traceback
+                print("\033[31m" + traceback.format_exc() + "\033[0m")
             print("Please try again or type 'exit' to quit.")
 
 if __name__ == "__main__":

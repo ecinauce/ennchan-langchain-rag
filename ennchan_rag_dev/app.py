@@ -1,3 +1,10 @@
+"""
+Example application demonstrating the use of the ennchan_rag module.
+
+This script shows how to use the RAG system to answer a question,
+and measures the runtime of the operation.
+"""
+
 from ennchan_rag import ask
 import time
 

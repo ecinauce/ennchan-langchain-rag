@@ -16,7 +16,21 @@ from ennchan_search.utils.error_handling import retry_with_backoff, safe_dict_ge
 logger = logging.getLogger(__name__)
 
 class BraveSearchEngine(SearchEngine):
+    """
+    Search engine implementation using Brave Search API.
+    
+    This class provides search functionality using the Brave Search API
+    and handles content extraction from search results.
+    """
+    
     def __init__(self, config: Optional[Union[str, Dict, Config]] = None):
+        """
+        Initialize the Brave Search engine.
+        
+        Args:
+            config: Configuration for the search engine. Can be a path to a config file,
+                   a dictionary, a Config object, or None to use environment variables.
+        """
         # Handle different config types
         if isinstance(config, str):
             # If config is a string path, load it
@@ -46,7 +60,15 @@ class BraveSearchEngine(SearchEngine):
             logger.warning("Initialized Brave Search without API key")
 
     def extract_content(self, url: str) -> Optional[str]:
-        """Extract main content from a URL with improved error handling"""
+        """
+        Extract main content from a URL with improved error handling.
+        
+        Args:
+            url: The URL to extract content from
+            
+        Returns:
+            Extracted content as string or None if extraction fails
+        """
         try:
             logger.info(f"Extracting content from {url}")
             output = WebResultExtractor(url)
@@ -61,7 +83,18 @@ class BraveSearchEngine(SearchEngine):
             return None
 
     def process_results(self, results: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Process search results with improved error handling"""
+        """
+        Process search results with improved error handling.
+        
+        This method extracts relevant information from search results,
+        fetches content from each URL, and returns processed results.
+        
+        Args:
+            results: Raw search results from the Brave API
+            
+        Returns:
+            List of processed search results with extracted content
+        """
         try:
             # Safely get results using helper function
             web_results = safe_dict_get(results, 'web.results', [])
@@ -119,7 +152,18 @@ class BraveSearchEngine(SearchEngine):
             return []
 
     def _process_single_url(self, result: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """Process a single URL with error handling"""
+        """
+        Process a single URL with error handling.
+        
+        This method extracts content from a single URL and formats it
+        into a structured result.
+        
+        Args:
+            result: Search result item containing URL and metadata
+            
+        Returns:
+            Processed result with extracted content or None if processing fails
+        """
         url = result.get("url")
         if not url:
             logger.warning("Result missing URL")
@@ -147,7 +191,21 @@ class BraveSearchEngine(SearchEngine):
 
     @retry_with_backoff(max_retries=5, initial_delay=1.0, backoff_factor=2.0)
     def search(self, query: str) -> List[Dict[str, Any]]:
-        """Search with improved error handling and retries"""
+        """
+        Search with improved error handling and retries.
+        
+        This method performs a search using the Brave API with
+        automatic retries and comprehensive error handling.
+        
+        Args:
+            query: The search query string
+            
+        Returns:
+            List of search results with extracted content
+            
+        Raises:
+            Exception: If all retry attempts fail
+        """
         if not query or not query.strip():
             logger.warning("Empty query provided")
             return []
